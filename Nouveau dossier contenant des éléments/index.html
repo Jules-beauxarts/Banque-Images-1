@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2575.4">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="fr"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;Galerie interactive&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-family: sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: #f0f0f0;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>h1 {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>text-align: center;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.gallery {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: grid;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gap: 15px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 30px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.gallery img {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>height: auto;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>transition: filter 0.3s, transform 0.3s;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>filter: grayscale(100%);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.gallery img.revealed {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>filter: grayscale(0%);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>transform: scale(1.05);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;h1&gt;Galerie d'Images Interactive&lt;/h1&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="gallery" id="gallery"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- 12 images aléatoires --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;img src="https://picsum.photos/300/200?random=1" alt="1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;img src="https://picsum.photos/300/200?random=2" alt="2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;img src="https://picsum.photos/300/200?random=3" alt="3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;img src="https://picsum.photos/300/200?random=4" alt="4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;img src="https://picsum.photos/300/200?random=5" alt="5"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;img src="https://picsum.photos/300/200?random=6" alt="6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;img src="https://picsum.photos/300/200?random=7" alt="7"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;img src="https://picsum.photos/300/200?random=8" alt="8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;img src="https://picsum.photos/300/200?random=9" alt="9"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;img src="https://picsum.photos/300/200?random=10" alt="10"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;img src="https://picsum.photos/300/200?random=11" alt="11"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;img src="https://picsum.photos/300/200?random=12" alt="12"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const gallery = document.getElementById('gallery');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const images = Array.from(gallery.getElementsByTagName('img'));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>gallery.addEventListener('mouseover', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (e.target.tagName === 'IMG') {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Retirer la classe "revealed" de toutes les images</p>
+<p class="p1"><span class="Apple-converted-space">        </span>images.forEach(img =&gt; img.classList.remove('revealed'));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Sélectionner 4 images aléatoires</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const shuffled = images.sort(() =&gt; 0.5 - Math.random());</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const selected = shuffled.slice(0, 4);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Appliquer la classe "revealed"</p>
+<p class="p1"><span class="Apple-converted-space">        </span>selected.forEach(img =&gt; img.classList.add('revealed'));</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>gallery.addEventListener('mouseout', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>// Réinitialiser toutes les images en gris</p>
+<p class="p1"><span class="Apple-converted-space">      </span>images.forEach(img =&gt; img.classList.remove('revealed'));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
