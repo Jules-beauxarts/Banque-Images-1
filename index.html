@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Galerie Interactive Plein Écran</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      font-family: sans-serif;
+      background: #f0f0f0;
+    }
+
+    .gallery {
+      display: grid;
+      width: 100vw;
+      height: 100vh;
+      gap: 4px; /* marges entre les images */
+    }
+
+    .gallery .cell {
+      background: white;
+      display: flex;
