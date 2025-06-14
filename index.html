@@ -55,3 +55,54 @@
     // Fonction pour ajouter des zéros devant un nombre (ex: 1 -> 00001)
     function padNumber(num, size) {
       let s = num + "";
+      while (s.length < size) s = "0" + s;
+      return s;
+    }
+
+    const imagePaths = [];
+
+    for (let i = 1; i <= totalImages; i++) {
+      let folder;
+      if (i <= 100) {
+        folder = 'Site-Banque-Images-1';
+      } else if (i <= 200) {
+        folder = 'Site-Banque-Images-2';
+      } else {
+        folder = 'Site-Banque-Images-3';
+      }
+
+      const numberStr = padNumber(i, 5); // ex: 00001
+      const filename = `Site-Image-${numberStr}.jpg`;
+      const path = `${folder}/${filename}`;
+      imagePaths.push(path);
+    }
+
+    // Mélanger les images
+    const shuffledPaths = imagePaths.sort(() => 0.5 - Math.random());
+
+    const gallery = document.getElementById('gallery');
+
+    shuffledPaths.forEach((path, index) => {
+      const img = document.createElement('img');
+      img.src = path;
+      img.alt = `Image ${index + 1}`;
+      gallery.appendChild(img);
+    });
+
+    const images = Array.from(gallery.getElementsByTagName('img'));
+
+    gallery.addEventListener('mouseover', (e) => {
+      if (e.target.tagName === 'IMG') {
+        images.forEach(img => img.classList.remove('revealed'));
+        const randomImages = images.sort(() => 0.5 - Math.random()).slice(0, 4);
+        randomImages.forEach(img => img.classList.add('revealed'));
+      }
+    });
+
+    gallery.addEventListener('mouseout', () => {
+      images.forEach(img => img.classList.remove('revealed'));
+    });
+  </script>
+
+</body>
+</html>
