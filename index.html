@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Galerie interactive</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f0f0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 30px;
+    }
+    .gallery img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      transition: filter 0.3s, transform 0.3s;
+      filter: grayscale(100%);
+    }
+    .gallery img.revealed {
+      filter: grayscale(0%);
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Galerie d'Images Interactive</h1>
+
+  <div class="gallery" id="gallery">
+    <img src="Site-Banque-Images/Site-Image-1.jpg" alt="1" />
+    <img src="Site-Banque-Images/Site-Image-2.jpg" alt="2" />
+    <img src="Site-Banque-Images/Site-Image-3.jpg" alt="3" />
+    <img src="Site-Banque-Images/Site-Image-4.jpg" alt="4" />
+    <!-- Ajoute autant d'images que tu veux ici -->
+  </div>
+
+  <script>
+    const gallery = document.getElementById('gallery');
+    const images = Array.from(gallery.getElementsByTagName('img'));
+
+    gallery.addEventListener('mouseover', (e) => {
+      if (e.target.tagName === 'IMG') {
+        images.forEach(img => img.classList.remove('revealed'));
+        const shuffled = images.sort(() => 0.5 - Math.random());
+        const selected = shuffled.slice(0, 4);
+        selected.forEach(img => img.classList.add('revealed'));
+      }
+    });
+
+    gallery.addEventListener('mouseout', () => {
+      images.forEach(img => img.classList.remove('revealed'));
+    });
+  </script>
+
+</body>
+</html>
