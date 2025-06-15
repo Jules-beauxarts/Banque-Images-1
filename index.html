@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Galerie Interactive Plein Écran - Zoom Intelligent</title>
+  <title>Galerie Interactive Plein Écran - Zoom Fixe 5x</title>
   <style>
     html, body {
       margin: 0;
@@ -86,7 +86,6 @@
 
       const columns = calculateGrid();
       const rows = Math.ceil(totalImages / columns);
-
       gallery.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
       gallery.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
 
@@ -117,26 +116,22 @@
 
       const images = Array.from(gallery.getElementsByTagName('img'));
 
-      let clearZoomTimeout;
-
       images.forEach(img => {
         img.addEventListener('mouseenter', () => {
-          if (clearZoomTimeout) clearTimeout(clearZoomTimeout);
-
           images.forEach(i => {
             i.classList.remove('enlarged');
             i.style.transform = "translate(-50%, -50%)";
           });
 
-          applyZoomTransform(img);
-
           const others = images.filter(i => i !== img);
           const randoms = others.sort(() => 0.5 - Math.random()).slice(0, 3);
-          randoms.forEach(i => applyZoomTransform(i));
+
+          applyZoomTransform(img);
+          randoms.forEach(applyZoomTransform);
         });
 
         img.addEventListener('mouseleave', () => {
-          clearZoomTimeout = setTimeout(() => {
+          setTimeout(() => {
             if (!document.querySelector('.gallery img:hover')) {
               images.forEach(i => {
                 i.classList.remove('enlarged');
@@ -152,33 +147,25 @@
       const rect = img.getBoundingClientRect();
       const viewportW = window.innerWidth;
       const viewportH = window.innerHeight;
+      const scale = 5;
 
+      const enlargedW = rect.width * scale;
+      const enlargedH = rect.height * scale;
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-
-      // Calculer le scale maximal autorisé pour que l'image reste entièrement visible
-      const maxScaleX = Math.min(centerX / (rect.width / 2), (viewportW - centerX) / (rect.width / 2));
-      const maxScaleY = Math.min(centerY / (rect.height / 2), (viewportH - centerY) / (rect.height / 2));
-
-      const scale = Math.min(5, maxScaleX, maxScaleY); // 5x max mais réduit si nécessaire
 
       let offsetX = 0;
       let offsetY = 0;
 
-      const enlargedW = rect.width * scale;
-      const enlargedH = rect.height * scale;
-
-      if (centerX - enlargedW / 2 < 0) {
+      if (centerX - enlargedW / 2 < 0)
         offsetX = (enlargedW / 2 - centerX) / scale;
-      } else if (centerX + enlargedW / 2 > viewportW) {
+      else if (centerX + enlargedW / 2 > viewportW)
         offsetX = -(centerX + enlargedW / 2 - viewportW) / scale;
-      }
 
-      if (centerY - enlargedH / 2 < 0) {
+      if (centerY - enlargedH / 2 < 0)
         offsetY = (enlargedH / 2 - centerY) / scale;
-      } else if (centerY + enlargedH / 2 > viewportH) {
+      else if (centerY + enlargedH / 2 > viewportH)
         offsetY = -(centerY + enlargedH / 2 - viewportH) / scale;
-      }
 
       img.classList.add('enlarged');
       img.style.transform = `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px)) scale(${scale})`;
