@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Galerie Interactive Plein Écran</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      font-family: sans-serif;
+      background: #ffffff; /* fond blanc */
+    }
+
+    .gallery {
+      display: grid;
+      width: 100vw;
+      height: 100vh;
+      gap: 6px; /* marges blanches */
+      background: white;
+      place-items: center;
+    }
+
+    .cell {
+      background: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .cell img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      transition: transform 0.3s ease, z-index 0.3s;
+      z-index: 1;
+    }
+
+    .cell:hover {
+      z-index: 10;
+    }
+
+    .cell:hover img {
+      transform: scale(5);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(5);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="gallery" id="gallery"></div>
+
+  <script>
+    const totalImages = 217;
+
+    const imagePaths = [];
+    for (let i = 1; i <= totalImages; i++) {
+      let folder = '';
+      if (i <= 100) folder = 'Site-Banque-Images-1';
+      else if (i <= 200) folder = 'Site-Banque-Images-2';
+      else folder = 'Site-Banque-Images-3';
+
+      const filename = `Site-Image-${i}.jpg`;
+      imagePaths.push(`${folder}/${filename}`);
+    }
+
+    // Mélanger les images
+    imagePaths.sort(() => 0.5 - Math.random());
+
+    // Adapter la grille au nombre total d'images
+    const gallery = document.getElementById('gallery');
+    const n = Math.ceil(Math.sqrt(totalImages));
+    gallery.style.gridTemplateColumns = `repeat(${n}, 1fr)`;
+    gallery.style.gridTemplateRows = `repeat(${n}, 1fr)`;
+
+    // Ajouter les images dans la grille
+    imagePaths.forEach((path, index) => {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      const img = document.createElement('img');
+      img.src = path;
+      img.alt = `Image ${index + 1}`;
+      cell.appendChild(img);
+      gallery.appendChild(cell);
+    });
+  </script>
+
+</body>
+</html>
