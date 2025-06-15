@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Galerie Interactive</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      background: white;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+
+    .gallery {
+      display: grid;
+      width: 100vw;
+      height: 100vh;
+      background: white;
+      gap: 4px;
+      justify-content: center;
+      align-content: center;
+    }
+
+    .cell {
+      position: relative;
+      background: white;
+      overflow: visible;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .cell img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      transition: transform 0.3s ease, z-index 0.3s ease;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .cell.enlarged img {
+      transform: scale(5);
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* Taille dynamique des cellules */
+    .gallery.square-grid {
+      grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+      aspect-ratio: 1 / 1;
+    }
+
+    @media (min-aspect-ratio: 1/1) {
+      .gallery.square-grid {
+        grid-template-columns: repeat(auto-fit, minmax(calc(100vh / var(--rows)), 1fr));
+      }
+    }
+
+    @media (max-aspect-ratio: 1/1) {
+      .gallery.square-grid {
+        grid-template-columns: repeat(var(--columns), 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="gallery square-grid" id="gallery"></div>
+
+  <script>
+    const totalImages = 217;
+    const gallery = document.getElementById('gallery');
+
+    // Fonction pour déterminer le dossier
+    function getFolderName(i) {
+      if (i <= 100) return 'Site-Banque-Images-1';
+      if (i <= 200) return 'Site-Banque-Images-2';
+      return 'Site-Banque-Images-3';
+    }
+
+    // Générer les chemins
+    const imagePaths = [];
+    for (let i = 1; i <= totalImages; i++) {
+      const folder = getFolderName(i);
+      const filename = `Site-Image-${i}.jpg`;
+      imagePaths.push(`${folder}/${filename}`);
+    }
+
+    // Mélange aléatoire
+    imagePaths.sort(() => Math.random() - 0.5);
+
+    // Calcul du nombre de lignes/colonnes pour grille carrée
+    const columns = Math.ceil(Math.sqrt(totalImages));
+    const rows = Math.ceil(totalImages / columns);
+    gallery.style.setProperty('--columns', columns);
+    gallery.style.setProperty('--rows', rows);
+
+    // Création des cellules
+    imagePaths.forEach((src, index) => {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = `Image ${index + 1}`;
+      cell.appendChild(img);
+      gallery.appendChild(cell);
+    });
+
+    const allCells = Array.from(document.querySelectorAll('.cell'));
+
+    gallery.addEventListener('mouseover', (e) => {
+      if (e.target.tagName === 'IMG') {
+        allCells.forEach(c => c.classList.remove('enlarged'));
+
+        const hovered = e.target.closest('.cell');
+        if (!hovered) return;
+        hovered.classList.add('enlarged');
+
+        const others = allCells.filter(c => c !== hovered);
+        const randomOthers = others.sort(() => 0.5 - Math.random()).slice(0, 3);
+        randomOthers.forEach(c => c.classList.add('enlarged'));
+      }
+    });
+
+    gallery.addEventListener('mouseout', () => {
+      allCells.forEach(c => c.classList.remove('enlarged'));
+    });
+  </script>
+
+</body>
+</html>
