@@ -1,56 +1,55 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Galerie Interactive</title>
+  <meta charset="UTF-8" />
+  <title>Galerie Interactive Plein Écran</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
       height: 100%;
+      width: 100%;
       overflow: hidden;
-      background: white;
       font-family: sans-serif;
+      background: #ffffff; /* fond blanc */
     }
 
     .gallery {
       display: grid;
       width: 100vw;
       height: 100vh;
+      gap: 6px; /* marges blanches plus visibles */
       background: white;
-      gap: 4px;
-      justify-content: center;
-      align-content: center;
+      place-items: center;
     }
 
     .cell {
       background: white;
-      aspect-ratio: 1 / 1;
-      position: relative;
-      overflow: visible;
       display: flex;
       justify-content: center;
       align-items: center;
-    }
-
-    .cell img {
-      max-width: 90%;
-      max-height: 90%;
-      object-fit: contain;
-      transition: transform 0.3s ease, z-index 0.3s;
-      z-index: 1;
-      pointer-events: none;
+      overflow: hidden;
       position: relative;
     }
 
-    .zoomed img {
-      transform: scale(5);
+    .cell img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      transition: transform 0.3s ease, z-index 0.3s;
+      z-index: 1;
+    }
+
+    .cell:hover {
       z-index: 10;
     }
 
-    /* Limite l'expansion à l'intérieur de la fenêtre */
-    .zoomed {
-      overflow: visible;
+    .cell:hover img {
+      transform: scale(5);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(5);
     }
   </style>
 </head>
@@ -60,70 +59,43 @@
 
   <script>
     const totalImages = 217;
-    const imagePaths = [];
 
-    for (let i = 1; i <= totalImages; i++) {
-      let folder = i <= 100 ? 'Site-Banque-Images-1'
-                : i <= 200 ? 'Site-Banque-Images-2'
-                : 'Site-Banque-Images-3';
-      imagePaths.push(`${folder}/Site-Image-${i}.jpg`);
+    function pad(num, size) {
+      return String(num).padStart(size, '0');
     }
 
-    const shuffled = imagePaths.sort(() => Math.random() - 0.5);
-    const gallery = document.getElementById("gallery");
+    const imagePaths = [];
+    for (let i = 1; i <= totalImages; i++) {
+      let dossier = '';
+      if (i <= 100) dossier = 'Site-Banque-Images-1';
+      else if (i <= 200) dossier = 'Site-Banque-Images-2';
+      else dossier = 'Site-Banque-Images-3';
 
-    // Taille de grille carrée
-    const gridSize = Math.ceil(Math.sqrt(shuffled.length));
-    gallery.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
-    gallery.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+      const filename = `Site-Image-${pad(i, 5)}.jpg`;
+      imagePaths.push(`${dossier}/${filename}`);
+    }
 
-    // Crée la grille
-    shuffled.forEach((src, index) => {
-      const cell = document.createElement("div");
-      cell.className = "cell";
+    // Mélanger les images
+    imagePaths.sort(() => 0.5 - Math.random());
 
-      const img = document.createElement("img");
-      img.src = src;
-      img.alt = `Image ${index + 1}`;
+    // Déterminer la taille de la grille pour que tout rentre dans l'écran
+    const gallery = document.getElementById('gallery');
+    const containerWidth = window.innerWidth;
+    const containerHeight = window.innerHeight;
+    const n = Math.ceil(Math.sqrt(totalImages));
+    gallery.style.gridTemplateColumns = `repeat(${n}, 1fr)`;
+    gallery.style.gridTemplateRows = `repeat(${n}, 1fr)`;
+
+    // Ajouter les images
+    for (let i = 0; i < totalImages; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      const img = document.createElement('img');
+      img.src = imagePaths[i];
+      img.alt = `Image ${i + 1}`;
       cell.appendChild(img);
       gallery.appendChild(cell);
-    });
-
-    const allCells = Array.from(document.querySelectorAll(".cell"));
-
-    gallery.addEventListener("mouseover", (e) => {
-      const hovered = e.target.closest(".cell");
-      if (!hovered) return;
-
-      // Supprime les zooms existants
-      allCells.forEach(c => c.classList.remove("zoomed"));
-
-      // Sélectionne 3 cellules aléatoires différentes
-      const others = allCells.filter(c => c !== hovered);
-      const randomOthers = others.sort(() => Math.random() - 0.5).slice(0, 3);
-
-      [hovered, ...randomOthers].forEach(c => c.classList.add("zoomed"));
-
-      // Gère les débordements
-      [hovered, ...randomOthers].forEach(c => {
-        const rect = c.getBoundingClientRect();
-        const scale = 5;
-        const scaledWidth = rect.width * scale;
-        const scaledHeight = rect.height * scale;
-
-        const offsetX = Math.max(0, (scaledWidth - window.innerWidth + rect.left));
-        const offsetY = Math.max(0, (scaledHeight - window.innerHeight + rect.top));
-
-        c.style.transform = `translate(${-offsetX}px, ${-offsetY}px)`;
-      });
-    });
-
-    gallery.addEventListener("mouseout", () => {
-      allCells.forEach(c => {
-        c.classList.remove("zoomed");
-        c.style.transform = "none";
-      });
-    });
+    }
   </script>
 
 </body>
