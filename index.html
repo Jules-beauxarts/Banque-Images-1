@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Galerie Interactive Plein Écran</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: sans-serif;
+      background: white;
+    }
+
+    .gallery {
+      display: grid;
+      width: 100vw;
+      height: 100vh;
+      gap: 4px;
+      background: white;
+    }
+
+    .cell {
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: visible;
+    }
+
+    .cell img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+      transition: transform 0.3s ease;
+      z-index: 1;
+    }
+
+    .cell:hover img,
+    .cell.hovered img {
+      transform: scale(5);
+      z-index: 10;
+    }
+
+    /* Pour éviter le débordement hors de l’écran */
+    .cell img.enlarge-left {
+      transform-origin: right center;
+    }
+
+    .cell img.enlarge-right {
+      transform-origin: left center;
+    }
+
+    .cell img.enlarge-top {
+      transform-origin: center bottom;
+    }
+
+    .cell img.enlarge-bottom {
+      transform-origin: center top;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="gallery" id="gallery"></div>
+
+  <script>
+    const totalImages = 217;
+    const gallery = document.getElementById('gallery');
+    const imagePaths = [];
+
+    // Générer les chemins des images
+    for (let i = 1; i <= totalImages; i++) {
+      let folder;
+      if (i <= 100) folder = "Site-Banque-Images-1";
+      else if (i <= 200) folder = "Site-Banque-Images-2";
+      else folder = "Site-Banque-Images-3";
+
+      const filename = `Site-Image-${i}.jpg`;
+      imagePaths.push(`${folder}/${filename}`);
+    }
+
+    // Mélanger les chemins
+    imagePaths.sort(() => Math.random() - 0.5);
+
+    // Calcul du nombre de colonnes et de lignes pour que tout tienne à l’écran
+    const screenRatio = window.innerWidth / window.innerHeight;
+    const columns = Math.ceil(Math.sqrt(totalImages * screenRatio));
+    const rows = Math.ceil(totalImages / columns);
+    gallery.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+    gallery.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+    // Ajouter les images à la grille
+    imagePaths.forEach((path, index) => {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+
+      const img = document.createElement('img');
+      img.src = path;
+      img.alt = `Image ${index + 1}`;
+
+      // Ajouter la logique d'agrandissement qui reste dans l'écran
+      img.addEventListener('mouseenter', (e) => {
+        const rect = img.getBoundingClientRect();
+        const padding = 20;
+        const margin = 10;
+        img.classList.remove("enlarge-left", "enlarge-right", "enlarge-top", "enlarge-bottom");
+
+        if (rect.right * 5 > window.innerWidth) img.classList.add("enlarge-left");
+        else img.classList.add("enlarge-right");
+
+        if (rect.bottom * 5 > window.innerHeight) img.classList.add("enlarge-top");
+        else img.classList.add("enlarge-bottom");
+      });
+
+      img.addEventListener('mouseleave', () => {
+        img.classList.remove("enlarge-left", "enlarge-right", "enlarge-top", "enlarge-bottom");
+      });
+
+      cell.appendChild(img);
+      gallery.appendChild(cell);
+    });
+  </script>
+
+</body>
+</html>
