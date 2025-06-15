@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Galerie Interactive Plein Écran - Zoom Fixe 5x</title>
+  <title>Galerie Interactive Plein Écran</title>
   <style>
     html, body {
       margin: 0;
@@ -10,8 +10,8 @@
       height: 100%;
       width: 100%;
       overflow: hidden;
-      font-family: sans-serif;
       background: white;
+      font-family: sans-serif;
     }
 
     .gallery {
@@ -25,7 +25,7 @@
       position: relative;
     }
 
-    .gallery .cell {
+    .cell {
       background: white;
       width: 100%;
       height: 0;
@@ -34,7 +34,7 @@
       overflow: visible;
     }
 
-    .gallery .cell img {
+    .cell img {
       position: absolute;
       top: 50%;
       left: 50%;
@@ -42,11 +42,12 @@
       height: 100%;
       object-fit: contain;
       transform: translate(-50%, -50%);
-      transition: transform 0.35s ease, z-index 0.35s ease;
+      transition: transform 0.4s ease;
       z-index: 1;
+      pointer-events: none;
     }
 
-    .gallery .cell img.enlarged {
+    .cell img.enlarged {
       z-index: 1000;
     }
   </style>
@@ -88,6 +89,7 @@
       const rows = Math.ceil(totalImages / columns);
       gallery.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
       gallery.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+      gallery.style.gap = gap + 'px';
 
       const imagePaths = [];
       for (let i = 1; i <= totalImages; i++) {
@@ -95,7 +97,6 @@
         if (i <= 100) folder = 'Site-Banque-Images-1';
         else if (i <= 200) folder = 'Site-Banque-Images-2';
         else folder = 'Site-Banque-Images-3';
-
         const filename = `Site-Image-${i}.jpg`;
         imagePaths.push(`${folder}/${filename}`);
       }
@@ -105,67 +106,73 @@
       shuffled.forEach((path, index) => {
         const cell = document.createElement('div');
         cell.className = 'cell';
-
         const img = document.createElement('img');
         img.src = path;
         img.alt = `Image ${index + 1}`;
-
         cell.appendChild(img);
         gallery.appendChild(cell);
       });
 
       const images = Array.from(gallery.getElementsByTagName('img'));
 
-      images.forEach(img => {
-        img.addEventListener('mouseenter', () => {
-          images.forEach(i => {
-            i.classList.remove('enlarged');
-            i.style.transform = "translate(-50%, -50%)";
-          });
+      let enlargedSet = new Set();
 
-          const others = images.filter(i => i !== img);
-          const randoms = others.sort(() => 0.5 - Math.random()).slice(0, 3);
+      gallery.addEventListener('mousemove', e => {
+        const hoveredImg = e.target.closest('img');
+        if (!hoveredImg || !gallery.contains(hoveredImg)) return;
 
+        if (enlargedSet.has(hoveredImg)) return;
+
+        images.forEach(img => {
+          img.classList.remove('enlarged');
+          img.style.transform = "translate(-50%, -50%)";
+        });
+
+        enlargedSet.clear();
+
+        applyZoomTransform(hoveredImg);
+        enlargedSet.add(hoveredImg);
+
+        const others = images.filter(img => img !== hoveredImg);
+        const randoms = others.sort(() => 0.5 - Math.random()).slice(0, 3);
+
+        randoms.forEach(img => {
           applyZoomTransform(img);
-          randoms.forEach(applyZoomTransform);
+          enlargedSet.add(img);
         });
+      });
 
-        img.addEventListener('mouseleave', () => {
-          setTimeout(() => {
-            if (!document.querySelector('.gallery img:hover')) {
-              images.forEach(i => {
-                i.classList.remove('enlarged');
-                i.style.transform = "translate(-50%, -50%)";
-              });
-            }
-          }, 10);
+      gallery.addEventListener('mouseleave', () => {
+        images.forEach(img => {
+          img.classList.remove('enlarged');
+          img.style.transform = "translate(-50%, -50%)";
         });
+        enlargedSet.clear();
       });
     }
 
     function applyZoomTransform(img) {
+      const scale = 5;
       const rect = img.getBoundingClientRect();
       const viewportW = window.innerWidth;
       const viewportH = window.innerHeight;
-      const scale = 5;
-
       const enlargedW = rect.width * scale;
       const enlargedH = rect.height * scale;
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-
       let offsetX = 0;
       let offsetY = 0;
 
-      if (centerX - enlargedW / 2 < 0)
-        offsetX = (enlargedW / 2 - centerX) / scale;
-      else if (centerX + enlargedW / 2 > viewportW)
-        offsetX = -(centerX + enlargedW / 2 - viewportW) / scale;
+      const leftEdge = centerX - enlargedW / 2;
+      const rightEdge = centerX + enlargedW / 2;
+      const topEdge = centerY - enlargedH / 2;
+      const bottomEdge = centerY + enlargedH / 2;
 
-      if (centerY - enlargedH / 2 < 0)
-        offsetY = (enlargedH / 2 - centerY) / scale;
-      else if (centerY + enlargedH / 2 > viewportH)
-        offsetY = -(centerY + enlargedH / 2 - viewportH) / scale;
+      if (leftEdge < 0) offsetX = (0 - leftEdge) / scale;
+      else if (rightEdge > viewportW) offsetX = (viewportW - rightEdge) / scale;
+
+      if (topEdge < 0) offsetY = (0 - topEdge) / scale;
+      else if (bottomEdge > viewportH) offsetY = (viewportH - bottomEdge) / scale;
 
       img.classList.add('enlarged');
       img.style.transform = `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px)) scale(${scale})`;
@@ -174,5 +181,6 @@
     window.addEventListener('resize', loadGallery);
     window.addEventListener('load', loadGallery);
   </script>
+
 </body>
 </html>
