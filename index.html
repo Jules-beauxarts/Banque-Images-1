@@ -42,9 +42,8 @@
       height: 100%;
       object-fit: contain;
       transform: translate(-50%, -50%);
-      transition: transform 0.3s ease, z-index 0.3s ease;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), z-index 0.3s ease;
       z-index: 1;
-      /* PAS de width/height fixés pour garder la résolution originale */
     }
 
     .gallery .cell img.enlarged {
@@ -109,7 +108,6 @@
         else if (i <= 200) folder = 'Site-Banque-Images-2';
         else folder = 'Site-Banque-Images-3';
 
-        // Maintenant les images sont nommées avec 1, 2, 3 ... sans padding
         const filename = `Site-Image-${i}.jpg`;
         imagePaths.push(`${folder}/${filename}`);
       }
@@ -130,23 +128,41 @@
 
       const images = Array.from(gallery.getElementsByTagName('img'));
 
+      // Variable pour "debounce" le zoom
+      let zoomTimeout = null;
+      let lastHovered = null;
+
       gallery.addEventListener('mouseover', e => {
         if (e.target.tagName === 'IMG') {
-          images.forEach(img => {
-            img.classList.remove('enlarged');
-            img.style.transform = "translate(-50%, -50%)";
-          });
+          // Si on zoomait déjà sur cette image, ne rien faire
+          if (lastHovered === e.target) return;
 
-          const hovered = e.target;
-          applyZoomTransform(hovered);
+          lastHovered = e.target;
 
-          const others = images.filter(img => img !== hovered);
-          const randoms = others.sort(() => 0.5 - Math.random()).slice(0, 3);
-          randoms.forEach(img => applyZoomTransform(img));
+          if (zoomTimeout) clearTimeout(zoomTimeout);
+
+          // Laisse un petit délai (ex: 50ms) pour éviter les survols trop rapides
+          zoomTimeout = setTimeout(() => {
+            // Enlever zooms précédents
+            images.forEach(img => {
+              img.classList.remove('enlarged');
+              img.style.transform = "translate(-50%, -50%)";
+            });
+
+            // Zoomer l'image survolée
+            applyZoomTransform(lastHovered);
+
+            // Zoomer 3 autres images aléatoires différentes
+            const others = images.filter(img => img !== lastHovered);
+            const randoms = others.sort(() => 0.5 - Math.random()).slice(0, 3);
+            randoms.forEach(img => applyZoomTransform(img));
+          }, 50);
         }
       });
 
       gallery.addEventListener('mouseout', () => {
+        if (zoomTimeout) clearTimeout(zoomTimeout);
+        lastHovered = null;
         images.forEach(img => {
           img.classList.remove('enlarged');
           img.style.transform = "translate(-50%, -50%)";
