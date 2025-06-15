@@ -17,10 +17,10 @@
       display: grid;
       width: 100vw;
       height: 100vh;
+      background: white;
       gap: 4px;
       justify-content: center;
       align-content: center;
-      background: white;
     }
 
     .cell {
@@ -28,32 +28,29 @@
       aspect-ratio: 1 / 1;
       position: relative;
       overflow: visible;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .cell img {
       max-width: 90%;
       max-height: 90%;
       object-fit: contain;
-      display: block;
-      margin: auto;
-      transition: transform 0.3s ease;
-      pointer-events: none;
+      transition: transform 0.3s ease, z-index 0.3s;
       z-index: 1;
+      pointer-events: none;
       position: relative;
     }
 
-    .cell.zoomed img {
+    .zoomed img {
       transform: scale(5);
       z-index: 10;
     }
 
-    /* Empêche l'image agrandie de sortir de l'écran */
-    .cell.zoomed {
+    /* Limite l'expansion à l'intérieur de la fenêtre */
+    .zoomed {
       overflow: visible;
-    }
-
-    .gallery {
-      /* sera ajusté dynamiquement */
     }
   </style>
 </head>
@@ -73,14 +70,14 @@
     }
 
     const shuffled = imagePaths.sort(() => Math.random() - 0.5);
-
     const gallery = document.getElementById("gallery");
 
-    // Calcule une grille carrée en fonction du nombre d'images
+    // Taille de grille carrée
     const gridSize = Math.ceil(Math.sqrt(shuffled.length));
     gallery.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
     gallery.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
 
+    // Crée la grille
     shuffled.forEach((src, index) => {
       const cell = document.createElement("div");
       cell.className = "cell";
@@ -88,7 +85,6 @@
       const img = document.createElement("img");
       img.src = src;
       img.alt = `Image ${index + 1}`;
-
       cell.appendChild(img);
       gallery.appendChild(cell);
     });
@@ -99,17 +95,34 @@
       const hovered = e.target.closest(".cell");
       if (!hovered) return;
 
-      // Réinitialise tous les zooms
+      // Supprime les zooms existants
       allCells.forEach(c => c.classList.remove("zoomed"));
 
-      // Sélectionne 4 cellules : celle survolée + 3 aléatoires
+      // Sélectionne 3 cellules aléatoires différentes
       const others = allCells.filter(c => c !== hovered);
       const randomOthers = others.sort(() => Math.random() - 0.5).slice(0, 3);
+
       [hovered, ...randomOthers].forEach(c => c.classList.add("zoomed"));
+
+      // Gère les débordements
+      [hovered, ...randomOthers].forEach(c => {
+        const rect = c.getBoundingClientRect();
+        const scale = 5;
+        const scaledWidth = rect.width * scale;
+        const scaledHeight = rect.height * scale;
+
+        const offsetX = Math.max(0, (scaledWidth - window.innerWidth + rect.left));
+        const offsetY = Math.max(0, (scaledHeight - window.innerHeight + rect.top));
+
+        c.style.transform = `translate(${-offsetX}px, ${-offsetY}px)`;
+      });
     });
 
     gallery.addEventListener("mouseout", () => {
-      allCells.forEach(c => c.classList.remove("zoomed"));
+      allCells.forEach(c => {
+        c.classList.remove("zoomed");
+        c.style.transform = "none";
+      });
     });
   </script>
 
