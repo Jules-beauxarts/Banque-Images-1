@@ -5,13 +5,15 @@
   <title>Galerie Interactive Plein Écran - Zoom Intelligent</title>
   <style>
     html, body {
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
       height: 100%;
       width: 100%;
       overflow: hidden;
       font-family: sans-serif;
       background: #f0f0f0;
     }
+
     .gallery {
       display: grid;
       width: 100vw;
@@ -20,16 +22,18 @@
       align-content: center;
       gap: 4px;
       position: relative;
-      background: white;
+      overflow: hidden; /* cache débordements hors écran */
     }
+
     .gallery .cell {
       background: white;
       width: 100%;
       height: 0;
-      padding-bottom: 100%; /* carré */
+      padding-bottom: 100%; /* carré parfait */
       position: relative;
       overflow: visible; /* laisse dépasser l’image zoomée */
     }
+
     .gallery .cell img {
       position: absolute;
       top: 50%;
@@ -40,12 +44,11 @@
       transform: translate(-50%, -50%);
       transition: transform 0.3s ease, z-index 0.3s ease;
       z-index: 1;
-      cursor: pointer;
-      filter: none;
+      /* PAS de width/height fixés pour garder la résolution originale */
     }
+
     .gallery .cell img.enlarged {
       z-index: 1000;
-      will-change: transform;
     }
   </style>
 </head>
@@ -56,6 +59,12 @@
   <script>
     const totalImages = 217;
     const gap = 4;
+
+    function padNumber(num, size) {
+      let s = num + "";
+      while (s.length < size) s = "0" + s;
+      return s;
+    }
 
     function calculateGrid() {
       const screenW = window.innerWidth;
@@ -100,7 +109,7 @@
         else if (i <= 200) folder = 'Site-Banque-Images-2';
         else folder = 'Site-Banque-Images-3';
 
-        // Plus de padding, juste numéro simple
+        // Maintenant les images sont nommées avec 1, 2, 3 ... sans padding
         const filename = `Site-Image-${i}.jpg`;
         imagePaths.push(`${folder}/${filename}`);
       }
@@ -125,7 +134,7 @@
         if (e.target.tagName === 'IMG') {
           images.forEach(img => {
             img.classList.remove('enlarged');
-            img.style.transform = "translate(-50%, -50%) scale(1)";
+            img.style.transform = "translate(-50%, -50%)";
           });
 
           const hovered = e.target;
@@ -140,7 +149,7 @@
       gallery.addEventListener('mouseout', () => {
         images.forEach(img => {
           img.classList.remove('enlarged');
-          img.style.transform = "translate(-50%, -50%) scale(1)";
+          img.style.transform = "translate(-50%, -50%)";
         });
       });
     }
@@ -161,16 +170,24 @@
       let offsetX = 0;
       let offsetY = 0;
 
-      if (centerX - enlargedW / 2 < 0) {
-        offsetX = (enlargedW / 2 - centerX) / scale;
-      } else if (centerX + enlargedW / 2 > viewportW) {
-        offsetX = -(centerX + enlargedW / 2 - viewportW) / scale;
+      // Calcul des débordements horizontaux
+      const leftOverflow = (centerX - enlargedW / 2) < 0 ? (centerX - enlargedW / 2) : 0;
+      const rightOverflow = (centerX + enlargedW / 2) > viewportW ? (centerX + enlargedW / 2 - viewportW) : 0;
+
+      if (leftOverflow < 0) {
+        offsetX = -leftOverflow / scale;  // décaler vers la droite
+      } else if (rightOverflow > 0) {
+        offsetX = -rightOverflow / scale; // décaler vers la gauche
       }
 
-      if (centerY - enlargedH / 2 < 0) {
-        offsetY = (enlargedH / 2 - centerY) / scale;
-      } else if (centerY + enlargedH / 2 > viewportH) {
-        offsetY = -(centerY + enlargedH / 2 - viewportH) / scale;
+      // Calcul des débordements verticaux
+      const topOverflow = (centerY - enlargedH / 2) < 0 ? (centerY - enlargedH / 2) : 0;
+      const bottomOverflow = (centerY + enlargedH / 2) > viewportH ? (centerY + enlargedH / 2 - viewportH) : 0;
+
+      if (topOverflow < 0) {
+        offsetY = -topOverflow / scale;   // décaler vers le bas
+      } else if (bottomOverflow > 0) {
+        offsetY = -bottomOverflow / scale; // décaler vers le haut
       }
 
       img.classList.add('enlarged');
