@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Galerie Interactive</title>
   <style>
     html, body {
@@ -9,8 +9,8 @@
       padding: 0;
       height: 100%;
       overflow: hidden;
-      font-family: sans-serif;
       background: white;
+      font-family: sans-serif;
     }
 
     .gallery {
@@ -28,22 +28,44 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
       position: relative;
+      overflow: visible;
+    }
+
+    .cell-inner {
+      width: 100%;
+      height: 100%;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
     }
 
     .cell img {
-      max-width: 100%;
-      max-height: 100%;
+      max-width: 90%;
+      max-height: 90%;
       object-fit: contain;
-      transition: transform 0.3s ease;
+      transition: transform 0.3s ease, z-index 0.3s ease;
       pointer-events: none;
     }
 
-    .cell.revealed img {
+    .cell.zoomed {
       z-index: 10;
-      transform: scale(5);
-      transition: transform 0.3s ease;
+    }
+
+    .cell.zoomed .cell-inner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: auto;
+      height: auto;
+      transform: translate(-50%, -50%) scale(5);
+      z-index: 10;
+      background: white;
+      padding: 10px;
+      box-sizing: border-box;
     }
   </style>
 </head>
@@ -55,21 +77,19 @@
     const totalImages = 217;
     const gallery = document.getElementById("gallery");
 
-    function padNumber(num) {
-      return num.toString();
-    }
-
+    // Créer la liste des chemins d’images
     const imagePaths = [];
     for (let i = 1; i <= totalImages; i++) {
-      let folder = i <= 100 ? 'Site-Banque-Images-1' : (i <= 200 ? 'Site-Banque-Images-2' : 'Site-Banque-Images-3');
-      let filename = `Site-Image-${padNumber(i)}.jpg`;
-      imagePaths.push(`${folder}/${filename}`);
+      let folder = i <= 100 ? 'Site-Banque-Images-1' :
+                   i <= 200 ? 'Site-Banque-Images-2' :
+                              'Site-Banque-Images-3';
+      imagePaths.push(`${folder}/Site-Image-${i}.jpg`);
     }
 
     // Mélanger les images
-    const shuffled = imagePaths.sort(() => 0.5 - Math.random());
+    const shuffled = imagePaths.sort(() => Math.random() - 0.5);
 
-    // Calcul du nombre de colonnes et lignes
+    // Calculer taille de la grille carrée
     const n = Math.ceil(Math.sqrt(shuffled.length));
     gallery.style.gridTemplateColumns = `repeat(${n}, 1fr)`;
     gallery.style.gridTemplateRows = `repeat(${n}, 1fr)`;
@@ -78,28 +98,44 @@
     shuffled.forEach((path, index) => {
       const cell = document.createElement("div");
       cell.className = "cell";
+
+      const cellInner = document.createElement("div");
+      cellInner.className = "cell-inner";
+
       const img = document.createElement("img");
       img.src = path;
       img.alt = `Image ${index + 1}`;
-      cell.appendChild(img);
+
+      cellInner.appendChild(img);
+      cell.appendChild(cellInner);
       gallery.appendChild(cell);
     });
 
-    const cells = Array.from(document.querySelectorAll(".cell"));
+    const allCells = Array.from(document.querySelectorAll(".cell"));
 
     gallery.addEventListener("mouseover", (e) => {
-      if (!e.target.closest(".cell")) return;
-      cells.forEach(cell => cell.classList.remove("revealed"));
+      const hoveredCell = e.target.closest(".cell");
+      if (!hoveredCell) return;
 
-      const hovered = e.target.closest(".cell");
-      const shuffledCells = [...cells].sort(() => 0.5 - Math.random());
-      const selected = [hovered, ...shuffledCells.filter(c => c !== hovered).slice(0, 3)];
+      // Reset
+      allCells.forEach(cell => {
+        cell.classList.remove("zoomed");
+        cell.querySelector('.cell-inner').style.transform = 'translate(0, 0) scale(1)';
+      });
 
-      selected.forEach(cell => cell.classList.add("revealed"));
+      // Sélectionner 4 images dont l’image survolée
+      const shuffledCells = [...allCells].sort(() => 0.5 - Math.random());
+      const selected = [hoveredCell, ...shuffledCells.filter(c => c !== hoveredCell).slice(0, 3)];
+
+      selected.forEach(cell => {
+        cell.classList.add("zoomed");
+      });
     });
 
     gallery.addEventListener("mouseout", () => {
-      cells.forEach(cell => cell.classList.remove("revealed"));
+      allCells.forEach(cell => {
+        cell.classList.remove("zoomed");
+      });
     });
   </script>
 
