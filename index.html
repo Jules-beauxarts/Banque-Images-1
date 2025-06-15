@@ -1,4 +1,4 @@
-x<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
@@ -20,7 +20,7 @@ x<!DOCTYPE html>
       height: 100vh;
       justify-content: center;
       align-content: center;
-      gap: 4px; /* marges blanches entre les images */
+      gap: 4px;
       background: white;
       position: relative;
     }
@@ -29,7 +29,7 @@ x<!DOCTYPE html>
       background: white;
       width: 100%;
       height: 0;
-      padding-bottom: 100%; /* Carré parfait */
+      padding-bottom: 100%;
       position: relative;
       overflow: visible;
     }
@@ -62,7 +62,6 @@ x<!DOCTYPE html>
     function calculateGrid() {
       const screenW = window.innerWidth;
       const screenH = window.innerHeight;
-
       let bestCols = 1;
       let bestSize = 0;
 
@@ -70,12 +69,9 @@ x<!DOCTYPE html>
         const rows = Math.ceil(totalImages / cols);
         const totalGapW = (cols - 1) * gap;
         const totalGapH = (rows - 1) * gap;
-
         const imageSizeW = (screenW - totalGapW) / cols;
         const imageSizeH = (screenH - totalGapH) / rows;
-
         const size = Math.min(imageSizeW, imageSizeH);
-
         if (size > bestSize) {
           bestSize = size;
           bestCols = cols;
@@ -154,18 +150,23 @@ x<!DOCTYPE html>
 
     function applyZoomTransform(img) {
       const rect = img.getBoundingClientRect();
-      const scale = 5;
       const viewportW = window.innerWidth;
       const viewportH = window.innerHeight;
 
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
 
-      const enlargedW = rect.width * scale;
-      const enlargedH = rect.height * scale;
+      // Calculer le scale maximal autorisé pour que l'image reste entièrement visible
+      const maxScaleX = Math.min(centerX / (rect.width / 2), (viewportW - centerX) / (rect.width / 2));
+      const maxScaleY = Math.min(centerY / (rect.height / 2), (viewportH - centerY) / (rect.height / 2));
+
+      const scale = Math.min(5, maxScaleX, maxScaleY); // 5x max mais réduit si nécessaire
 
       let offsetX = 0;
       let offsetY = 0;
+
+      const enlargedW = rect.width * scale;
+      const enlargedH = rect.height * scale;
 
       if (centerX - enlargedW / 2 < 0) {
         offsetX = (enlargedW / 2 - centerX) / scale;
