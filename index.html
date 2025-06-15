@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+x<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
@@ -11,7 +11,7 @@
       width: 100%;
       overflow: hidden;
       font-family: sans-serif;
-      background: #f0f0f0;
+      background: white;
     }
 
     .gallery {
@@ -20,18 +20,18 @@
       height: 100vh;
       justify-content: center;
       align-content: center;
-      gap: 4px;
+      gap: 4px; /* marges blanches entre les images */
+      background: white;
       position: relative;
-      overflow: hidden; /* cache débordements hors écran */
     }
 
     .gallery .cell {
       background: white;
       width: 100%;
       height: 0;
-      padding-bottom: 100%; /* carré parfait */
+      padding-bottom: 100%; /* Carré parfait */
       position: relative;
-      overflow: visible; /* laisse dépasser l’image zoomée */
+      overflow: visible;
     }
 
     .gallery .cell img {
@@ -42,7 +42,7 @@
       height: 100%;
       object-fit: contain;
       transform: translate(-50%, -50%);
-      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), z-index 0.3s ease;
+      transition: transform 0.35s ease, z-index 0.35s ease;
       z-index: 1;
     }
 
@@ -58,12 +58,6 @@
   <script>
     const totalImages = 217;
     const gap = 4;
-
-    function padNumber(num, size) {
-      let s = num + "";
-      while (s.length < size) s = "0" + s;
-      return s;
-    }
 
     function calculateGrid() {
       const screenW = window.innerWidth;
@@ -99,7 +93,6 @@
 
       gallery.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
       gallery.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
-      gallery.style.gap = gap + 'px';
 
       const imagePaths = [];
       for (let i = 1; i <= totalImages; i++) {
@@ -128,44 +121,33 @@
 
       const images = Array.from(gallery.getElementsByTagName('img'));
 
-      // Variable pour "debounce" le zoom
-      let zoomTimeout = null;
-      let lastHovered = null;
+      let clearZoomTimeout;
 
-      gallery.addEventListener('mouseover', e => {
-        if (e.target.tagName === 'IMG') {
-          // Si on zoomait déjà sur cette image, ne rien faire
-          if (lastHovered === e.target) return;
+      images.forEach(img => {
+        img.addEventListener('mouseenter', () => {
+          if (clearZoomTimeout) clearTimeout(clearZoomTimeout);
 
-          lastHovered = e.target;
+          images.forEach(i => {
+            i.classList.remove('enlarged');
+            i.style.transform = "translate(-50%, -50%)";
+          });
 
-          if (zoomTimeout) clearTimeout(zoomTimeout);
+          applyZoomTransform(img);
 
-          // Laisse un petit délai (ex: 50ms) pour éviter les survols trop rapides
-          zoomTimeout = setTimeout(() => {
-            // Enlever zooms précédents
-            images.forEach(img => {
-              img.classList.remove('enlarged');
-              img.style.transform = "translate(-50%, -50%)";
-            });
+          const others = images.filter(i => i !== img);
+          const randoms = others.sort(() => 0.5 - Math.random()).slice(0, 3);
+          randoms.forEach(i => applyZoomTransform(i));
+        });
 
-            // Zoomer l'image survolée
-            applyZoomTransform(lastHovered);
-
-            // Zoomer 3 autres images aléatoires différentes
-            const others = images.filter(img => img !== lastHovered);
-            const randoms = others.sort(() => 0.5 - Math.random()).slice(0, 3);
-            randoms.forEach(img => applyZoomTransform(img));
-          }, 50);
-        }
-      });
-
-      gallery.addEventListener('mouseout', () => {
-        if (zoomTimeout) clearTimeout(zoomTimeout);
-        lastHovered = null;
-        images.forEach(img => {
-          img.classList.remove('enlarged');
-          img.style.transform = "translate(-50%, -50%)";
+        img.addEventListener('mouseleave', () => {
+          clearZoomTimeout = setTimeout(() => {
+            if (!document.querySelector('.gallery img:hover')) {
+              images.forEach(i => {
+                i.classList.remove('enlarged');
+                i.style.transform = "translate(-50%, -50%)";
+              });
+            }
+          }, 10);
         });
       });
     }
@@ -173,12 +155,11 @@
     function applyZoomTransform(img) {
       const rect = img.getBoundingClientRect();
       const scale = 5;
+      const viewportW = window.innerWidth;
+      const viewportH = window.innerHeight;
 
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-
-      const viewportW = window.innerWidth;
-      const viewportH = window.innerHeight;
 
       const enlargedW = rect.width * scale;
       const enlargedH = rect.height * scale;
@@ -186,24 +167,16 @@
       let offsetX = 0;
       let offsetY = 0;
 
-      // Calcul des débordements horizontaux
-      const leftOverflow = (centerX - enlargedW / 2) < 0 ? (centerX - enlargedW / 2) : 0;
-      const rightOverflow = (centerX + enlargedW / 2) > viewportW ? (centerX + enlargedW / 2 - viewportW) : 0;
-
-      if (leftOverflow < 0) {
-        offsetX = -leftOverflow / scale;  // décaler vers la droite
-      } else if (rightOverflow > 0) {
-        offsetX = -rightOverflow / scale; // décaler vers la gauche
+      if (centerX - enlargedW / 2 < 0) {
+        offsetX = (enlargedW / 2 - centerX) / scale;
+      } else if (centerX + enlargedW / 2 > viewportW) {
+        offsetX = -(centerX + enlargedW / 2 - viewportW) / scale;
       }
 
-      // Calcul des débordements verticaux
-      const topOverflow = (centerY - enlargedH / 2) < 0 ? (centerY - enlargedH / 2) : 0;
-      const bottomOverflow = (centerY + enlargedH / 2) > viewportH ? (centerY + enlargedH / 2 - viewportH) : 0;
-
-      if (topOverflow < 0) {
-        offsetY = -topOverflow / scale;   // décaler vers le bas
-      } else if (bottomOverflow > 0) {
-        offsetY = -bottomOverflow / scale; // décaler vers le haut
+      if (centerY - enlargedH / 2 < 0) {
+        offsetY = (enlargedH / 2 - centerY) / scale;
+      } else if (centerY + enlargedH / 2 > viewportH) {
+        offsetY = -(centerY + enlargedH / 2 - viewportH) / scale;
       }
 
       img.classList.add('enlarged');
