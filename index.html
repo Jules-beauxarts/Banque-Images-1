@@ -22,7 +22,6 @@
       align-content: center;
       gap: 4px;
       background: white;
-      position: relative;
     }
 
     .cell {
@@ -44,7 +43,6 @@
       transform: translate(-50%, -50%);
       transition: transform 0.4s ease;
       z-index: 1;
-      pointer-events: none;
     }
 
     .cell img.enlarged {
@@ -114,14 +112,12 @@
       });
 
       const images = Array.from(gallery.getElementsByTagName('img'));
-
+      let lastHovered = null;
       let enlargedSet = new Set();
 
-      gallery.addEventListener('mousemove', e => {
-        const hoveredImg = e.target.closest('img');
-        if (!hoveredImg || !gallery.contains(hoveredImg)) return;
-
-        if (enlargedSet.has(hoveredImg)) return;
+      gallery.addEventListener('mousemove', (e) => {
+        const hovered = e.target.closest('img');
+        if (!hovered || hovered === lastHovered) return;
 
         images.forEach(img => {
           img.classList.remove('enlarged');
@@ -129,13 +125,13 @@
         });
 
         enlargedSet.clear();
+        lastHovered = hovered;
 
-        applyZoomTransform(hoveredImg);
-        enlargedSet.add(hoveredImg);
+        applyZoomTransform(hovered);
+        enlargedSet.add(hovered);
 
-        const others = images.filter(img => img !== hoveredImg);
+        const others = images.filter(img => img !== hovered);
         const randoms = others.sort(() => 0.5 - Math.random()).slice(0, 3);
-
         randoms.forEach(img => {
           applyZoomTransform(img);
           enlargedSet.add(img);
@@ -148,6 +144,7 @@
           img.style.transform = "translate(-50%, -50%)";
         });
         enlargedSet.clear();
+        lastHovered = null;
       });
     }
 
@@ -160,19 +157,21 @@
       const enlargedH = rect.height * scale;
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
+
       let offsetX = 0;
       let offsetY = 0;
 
-      const leftEdge = centerX - enlargedW / 2;
-      const rightEdge = centerX + enlargedW / 2;
-      const topEdge = centerY - enlargedH / 2;
-      const bottomEdge = centerY + enlargedH / 2;
+      if (centerX - enlargedW / 2 < 0) {
+        offsetX = (enlargedW / 2 - centerX) / scale;
+      } else if (centerX + enlargedW / 2 > viewportW) {
+        offsetX = -(centerX + enlargedW / 2 - viewportW) / scale;
+      }
 
-      if (leftEdge < 0) offsetX = (0 - leftEdge) / scale;
-      else if (rightEdge > viewportW) offsetX = (viewportW - rightEdge) / scale;
-
-      if (topEdge < 0) offsetY = (0 - topEdge) / scale;
-      else if (bottomEdge > viewportH) offsetY = (viewportH - bottomEdge) / scale;
+      if (centerY - enlargedH / 2 < 0) {
+        offsetY = (enlargedH / 2 - centerY) / scale;
+      } else if (centerY + enlargedH / 2 > viewportH) {
+        offsetY = -(centerY + enlargedH / 2 - viewportH) / scale;
+      }
 
       img.classList.add('enlarged');
       img.style.transform = `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px)) scale(${scale})`;
@@ -181,6 +180,5 @@
     window.addEventListener('resize', loadGallery);
     window.addEventListener('load', loadGallery);
   </script>
-
 </body>
 </html>
